@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"log"
@@ -112,6 +113,30 @@ func startNagbar(
 	args := []string{"i3-nagbar", "-m", message}
 
 	cmd := exec.Command(args[0], args[1:]...)
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return nil, err
+	}
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			log.Printf("[i3-nagbar:stdout]: %s", scanner.Text())
+		}
+	}()
+
+	go func() {
+		scanner := bufio.NewScanner(stderr)
+		for scanner.Scan() {
+			log.Printf("[i3-nagbar:stderr]: %s", scanner.Text())
+		}
+	}()
 
 	err = cmd.Start()
 	if err != nil {
