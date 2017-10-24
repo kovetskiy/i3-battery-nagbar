@@ -146,6 +146,10 @@ func startNagbar(
 		)
 	}
 
+	go func() {
+		cmd.Wait()
+	}()
+
 	return cmd.Process, nil
 }
 
