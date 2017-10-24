@@ -1,0 +1,8 @@
+[Unit]
+Description=battery nagbar service
+
+[Service]
+ExecStart=/usr/bin/i3-battery-nagbar
+
+[Install]
+WantedBy=basic.target
