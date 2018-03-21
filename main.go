@@ -35,7 +35,8 @@ Options:
                           [default: Too low charge of battery: {{ .percentage}}%]
   --interval <duration>  Use specified interval as timer ticker.
                           [default: 1s]
-  --upath                Set a custom uevent path.
+  --uevent <path>        Use specified uevent path for reading battery stats.
+                          [default: /sys/class/power_supply/BAT0/uevent]
   -h --help              Show this screen.
   --version              Show version.
 `
@@ -62,25 +63,11 @@ func main() {
 		log.Fatalf("unable to parse threshold: %s", err)
 	}
 
-	customPath, err := os.Open(args["--upath"].(string))
-	if err != nil {
-		log.Fatalf("unable to open uevent path: %s", err)
-	}
-
-
 	var nagbar *os.Process
 	var prevPresent bool
-	const ueventPath = "/sys/class/power_supply/BAT0/uevent"
 
 	for range time.Tick(interval) {
-
-
-		var upath = ueventPath
-		if customPath != nil {
-			upath = args["--upath"].(string)
-		}
-
-		percentage, present, err := GetBatteyInfo(upath)
+		percentage, present, err := GetBatteryInfo(args["--uevent"].(string))
 		if err != nil {
 			log.Println(err)
 			continue

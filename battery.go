@@ -9,14 +9,13 @@ import (
 	karma "github.com/reconquest/karma-go"
 )
 
-func GetBatteyInfo(
-	ueventPath string,
-) (int, bool, error) {
-	file, err := os.Open(ueventPath)
+func GetBatteryInfo(uevent string) (int, bool, error) {
+	file, err := os.Open(uevent)
 	if err != nil {
 		return 0, false, karma.Format(
 			err,
 			"unable to open uevent file: %s",
+			uevent,
 		)
 	}
 
@@ -24,7 +23,7 @@ func GetBatteyInfo(
 
 	scanner := bufio.NewScanner(file)
 
-	var full, now float64
+	var full, fullDesign, now float64
 	var present bool
 	for scanner.Scan() {
 		tokens := strings.SplitN(scanner.Text(), "=", 2)
@@ -33,8 +32,8 @@ func GetBatteyInfo(
 		}
 
 		switch tokens[0] {
-		case "POWER_SUPPLY_ENERGY_FULL_DESIGN":
-			full, _ = strconv.ParseFloat(tokens[1], 64)
+		case "POWER_SUPPLY_CHARGE_FULL_DESIGN":
+			fullDesign, _ = strconv.ParseFloat(tokens[1], 64)
 		case "POWER_SUPPLY_CHARGE_FULL":
 			full, _ = strconv.ParseFloat(tokens[1], 64)
 		case "POWER_SUPPLY_ENERGY_NOW":
@@ -44,6 +43,11 @@ func GetBatteyInfo(
 		case "POWER_SUPPLY_STATUS":
 			present = tokens[1] != "Discharging"
 		}
+	}
+
+	// Sometimes it happens for laptops
+	if fullDesign > full {
+		full = fullDesign
 	}
 
 	return int(now / full * 100), present, nil
