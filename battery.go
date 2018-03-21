@@ -46,9 +46,11 @@ func GetBatteryInfo(uevent string) (int, bool, error) {
 	}
 
 	// Sometimes it happens for laptops
-	if fullDesign > full {
+	if fullDesign > full && now > full {
 		full = fullDesign
 	}
 
-	return int(now / full * 100), present, nil
+	percentage := int(now / full * 100)
+
+	return percentage, present, nil
 }
