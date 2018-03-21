@@ -10,7 +10,7 @@ import (
 )
 
 func GetBatteyInfo(
-	ueventPath *os.File
+	ueventPath string,
 ) (int, bool, error) {
 	file, err := os.Open(ueventPath)
 	if err != nil {
