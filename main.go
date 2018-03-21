@@ -73,9 +73,9 @@ func main() {
 
 	for range time.Tick(interval) {
 
-		
+
 		if upath == nil {
-			upath = ueventPath
+			upath = ueventPath.string()
 		}
 		percentage, present, err := GetBatteyInfo(upath)
 		if err != nil {
