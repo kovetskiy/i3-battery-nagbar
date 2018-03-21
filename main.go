@@ -35,6 +35,7 @@ Options:
                           [default: Too low charge of battery: {{ .percentage}}%]
   --interval <duration>  Use specified interval as timer ticker.
                           [default: 1s]
+  --upath								 Set a custom uevent path.
   -h --help              Show this screen.
   --version              Show version.
 `
@@ -61,10 +62,22 @@ func main() {
 		log.Fatalf("unable to parse threshold: %s", err)
 	}
 
+	upath, err := os.Open(args["--upath"].(string))
+	if err != nil {
+		log.Fatalf("unable to set uevent path: %s", err)
+	}
+
 	var nagbar *os.Process
 	var prevPresent bool
+	const ueventPath = "/sys/class/power_supply/BAT0/uevent"
+
 	for range time.Tick(interval) {
-		percentage, present, err := GetBatteyInfo()
+
+		
+		if upath == nil {
+			upath = ueventPath
+		}
+		percentage, present, err := GetBatteyInfo(upath)
 		if err != nil {
 			log.Println(err)
 			continue

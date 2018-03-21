@@ -9,9 +9,9 @@ import (
 	karma "github.com/reconquest/karma-go"
 )
 
-const ueventPath = "/sys/class/power_supply/BAT0/uevent"
-
-func GetBatteyInfo() (int, bool, error) {
+func GetBatteyInfo(
+	ueventPath string
+) (int, bool, error) {
 	file, err := os.Open(ueventPath)
 	if err != nil {
 		return 0, false, karma.Format(
